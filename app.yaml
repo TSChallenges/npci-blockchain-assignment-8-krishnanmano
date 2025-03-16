@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: web-app-namespace
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  labels:
+    APP_ENV: production
+  namespace: web-app-namespace
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      APP_ENV: production
+  template:
+    metadata:
+      labels:
+        APP_ENV: production
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-clusterip
+  namespace: web-app-namespace
+spec:
+  type: ClusterIP
+  selector:
+    APP_ENV: production
+  ports:
+  - name: nginx-80-srv
+    protocol: TCP
+    port: 80
+    targetPort: 80
